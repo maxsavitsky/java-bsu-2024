@@ -1,5 +1,14 @@
 package by.bsu.dependency.context;
 
+import by.bsu.dependency.annotation.Bean;
+import org.reflections.Configuration;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ConfigurationBuilder;
+
+import java.util.ArrayList;
+import java.util.Set;
+
 public class AutoScanApplicationContext extends AbstractApplicationContext {
 
     /**
@@ -12,41 +21,10 @@ public class AutoScanApplicationContext extends AbstractApplicationContext {
      * @param packageName имя сканируемого пакета
      */
     public AutoScanApplicationContext(String packageName) {
-        throw new IllegalStateException("not implemented");
+        Configuration configuration = new ConfigurationBuilder()
+                .forPackage(packageName);
+        Set<Class<?>> set = new Reflections(configuration).get(Scanners.SubTypes.of(Scanners.TypesAnnotated.with(Bean.class)).asClass());
+        initializeBeanConfigurations(new ArrayList<>(set));
     }
 
-    @Override
-    public void start() {
-        throw new IllegalStateException("not implemented");
-    }
-
-    @Override
-    public boolean isRunning() {
-        throw new IllegalStateException("not implemented");
-    }
-
-    @Override
-    public boolean containsBean(String name) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    @Override
-    public Object getBean(String name) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    @Override
-    public <T> T getBean(Class<T> clazz) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    @Override
-    public boolean isPrototype(String name) {
-        throw new IllegalStateException("not implemented");
-    }
-
-    @Override
-    public boolean isSingleton(String name) {
-        throw new IllegalStateException("not implemented");
-    }
 }
