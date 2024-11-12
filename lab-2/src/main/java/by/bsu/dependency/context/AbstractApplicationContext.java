@@ -22,7 +22,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
     protected void initializeBeanConfigurations(List<Class<?>> beanClasses) {
         for (var cl : beanClasses) {
-            String name = cl.getName();
+            String className = cl.getSimpleName();
+            String name = Character.toLowerCase(className.charAt(0)) + className.substring(1);
             BeanScope scope = BeanScope.SINGLETON;
             if (cl.isAnnotationPresent(Bean.class)) {
                 Bean b = cl.getAnnotation(Bean.class);
@@ -186,7 +187,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
     @Override
     public boolean isPrototype(String name) {
-        checkRunning();
         checkIfBeanExists(name);
         return beanConfigurationMap.values().stream()
                 .anyMatch(bc -> bc.getName().equals(name) && bc.getBeanScope() == BeanScope.PROTOTYPE);
@@ -194,7 +194,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
 
     @Override
     public boolean isSingleton(String name) {
-        checkRunning();
         checkIfBeanExists(name);
         return beanConfigurationMap.values().stream()
                 .anyMatch(bc -> bc.getName().equals(name) && bc.getBeanScope() == BeanScope.SINGLETON);

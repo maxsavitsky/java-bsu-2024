@@ -6,6 +6,8 @@ import by.bsu.dependency.annotation.PostConstruct;
 @Bean(name = "firstBean")
 public class FirstBean {
 
+    public boolean isPostConstructCalled = false;
+
     void printSomething() {
         System.out.println("Hello, I'm first bean");
     }
@@ -17,6 +19,7 @@ public class FirstBean {
     @PostConstruct
     void postConstruct() {
         System.out.println("First bean post construct");
+        isPostConstructCalled = true;
     }
 
 }
