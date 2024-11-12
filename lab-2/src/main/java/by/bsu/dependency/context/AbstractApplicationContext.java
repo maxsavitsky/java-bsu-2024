@@ -3,6 +3,7 @@ package by.bsu.dependency.context;
 import by.bsu.dependency.annotation.Bean;
 import by.bsu.dependency.annotation.BeanScope;
 import by.bsu.dependency.annotation.Inject;
+import by.bsu.dependency.annotation.PostConstruct;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -54,7 +55,8 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
                     Object obj = bc.getBeanObject().orElseThrow(()->new IllegalStateException("Injecting on null object"));
                     try {
                         injectDependencies(bc, obj);
-                    } catch (IllegalAccessException e) {
+                        executePostConstructMethods(bc, obj);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
                         throw new ApplicationContextNotStartedException(e);
                     }
                 });
@@ -88,6 +90,19 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         }
     }
 
+    protected void executePostConstructMethods(BeanConfiguration bc, Object obj) throws InvocationTargetException, IllegalAccessException {
+        for(var method : bc.getBeanClass().getDeclaredMethods()) {
+            if (!method.isAnnotationPresent(PostConstruct.class)) {
+                continue;
+            }
+            if (method.getParameterCount() > 0) {
+                throw new IllegalArgumentException("Cannot execute post-construct method with parameters");
+            }
+            method.setAccessible(true);
+            method.invoke(obj);
+        }
+    }
+
     @Override
     public Object getBean(String name) {
         if (contextStatus != ContextStatus.STARTED) {
@@ -102,7 +117,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         }
         try {
             return instantiateBean(bc);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
@@ -122,7 +137,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         return obj;
     }
 
-    protected Object instantiateBean(BeanConfiguration bc) throws IllegalAccessException {
+    protected Object instantiateBean(BeanConfiguration bc) throws IllegalAccessException, InvocationTargetException {
         if (bc.getBeanObject().isPresent()) {
             return bc.getBeanObject().get();
         }
@@ -134,6 +149,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
             throw new RuntimeException(e);
         }
         injectDependencies(bc, obj);
+        executePostConstructMethods(bc, obj);
         return obj;
     }
 
