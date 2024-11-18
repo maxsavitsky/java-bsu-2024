@@ -56,9 +56,18 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
                     Object obj = bc.getBeanObject().orElseThrow(()->new IllegalStateException("Injecting on null object"));
                     try {
                         injectDependencies(bc, obj);
-                        executePostConstructMethods(bc, obj);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
+                    } catch (IllegalAccessException e) {
                         throw new ApplicationContextNotStartedException(e);
+                    }
+                });
+        beanConfigurationMap.values().stream()
+                .filter(bc -> bc.getBeanScope() == BeanScope.SINGLETON)
+                .forEach(bc -> {
+                    Object obj = bc.getBeanObject().orElseThrow(()->new IllegalStateException("Got null object"));
+                    try {
+                        executePostConstructMethods(bc, obj);
+                    } catch (InvocationTargetException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
                 });
         contextStatus = ContextStatus.STARTED;
