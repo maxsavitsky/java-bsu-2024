@@ -79,7 +79,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         }
         BeanConfiguration beanConfiguration = beanConfigurationMap.get(clazz);
         if (beanConfiguration.getBeanObject().isPresent()) {
-            return (T) beanConfiguration.getBeanObject().get();
+            return clazz.cast(beanConfiguration.getBeanObject().get());
         }
 
         Object obj;
@@ -88,7 +88,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
-        return (T) obj;
+        return clazz.cast(obj);
     }
 
     protected void injectDependencies(BeanConfiguration config, Object obj) throws IllegalAccessException {
