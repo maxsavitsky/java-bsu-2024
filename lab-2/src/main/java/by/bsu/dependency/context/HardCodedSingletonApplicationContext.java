@@ -81,7 +81,11 @@ public class HardCodedSingletonApplicationContext extends AbstractApplicationCon
         if (beanDefinitions.values().stream().noneMatch(cl -> cl != clazz)) {
             throw new NoSuchBeanDefinitionException(clazz.toGenericString());
         }
-        return instantiateBean(clazz);
+        return beanDefinitions.entrySet().stream()
+                .filter(entry -> entry.getValue() == clazz)
+                .map(entry -> clazz.cast(beans.get(entry.getKey())))
+                .findAny()
+                .orElseThrow(()->new NoSuchBeanDefinitionException(clazz.toGenericString()));
     }
 
     @Override
