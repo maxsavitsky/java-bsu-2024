@@ -17,4 +17,8 @@ public class OtherBean {
         System.out.println("Trying to shake first bean...");
         firstBean.doSomething();
     }
+
+    public FirstBean getFirstBean() {
+        return firstBean;
+    }
 }

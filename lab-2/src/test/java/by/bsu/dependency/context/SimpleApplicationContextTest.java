@@ -103,6 +103,14 @@ class SimpleApplicationContextTest {
     }
 
     @Test
+    void testInjection() {
+        applicationContext.start();
+
+        OtherBean bean = applicationContext.getBean(OtherBean.class);
+        assertNotNull(bean.getFirstBean());
+    }
+
+    @Test
     void testPrototype() {
         applicationContext.start();
 
